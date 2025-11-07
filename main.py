@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import json
-
+import os
 app = Flask(__name__)
 CORS(app)  # ✅ Permite que o HTML acesse a API
 
@@ -45,11 +45,12 @@ def obter_ingrediente(id_ingrediente):
     return jsonify(resultado)
 
 if __name__ == '__main__':
-    host = '127.0.0.1'
-    port = 5000
+    port = int(os.environ.get('PORT', 5000))
+    host = '0.0.0.0'
 
     print("\n🚀 API de ingredientes iniciando...\n")
-    print(f"✅ Todos os ingredientes: http://{host}:{port}/ingredientes")
-    print(f"✅ Ingrediente específico (exemplo com 150g): http://{host}:{port}/ingrediente/1?gramas=150\n")
+    print(f"✅ Todos os ingredientes: https://seu-projeto-production.up.railway.app/ingredientes")
+    print(
+        f"✅ Ingrediente específico (exemplo com 150g): https://seu-projeto-production.up.railway.app/ingrediente/1?gramas=150\n")
 
-    app.run(debug=True, host=host, port=port)
+    app.run(debug=False, host=host, port=port)

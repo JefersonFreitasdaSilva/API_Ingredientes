@@ -2,12 +2,31 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import json
 import os
+
 app = Flask(__name__)
 CORS(app)  # ✅ Permite que o HTML acesse a API
 
+# Caminho absoluto para o JSON
+json_path = os.path.join(os.path.dirname(__file__), 'ingredientes_macros.json')
+
 # Carregar dados do arquivo JSON
-with open('ingredientes_macros.json', 'r', encoding='utf-8') as f:
-    ingredientes_data = json.load(f)
+try:
+    with open(json_path, 'r', encoding='utf-8') as f:
+        ingredientes_data = json.load(f)
+except FileNotFoundError:
+    ingredientes_data = []
+    print("⚠️  Arquivo 'ingredientes_macros.json' não encontrado!")
+
+@app.route('/')
+def home():
+    """Rota inicial informativa"""
+    return jsonify({
+        "mensagem": "API de ingredientes ativa!",
+        "rotas": {
+            "listar_ingredientes": "/ingredientes",
+            "ingrediente_exemplo": "/ingrediente/1?gramas=150"
+        }
+    })
 
 @app.route('/ingredientes', methods=['GET'])
 def listar_ingredientes():
@@ -30,7 +49,7 @@ def obter_ingrediente(id_ingrediente):
         valor_ajustado = macro["valor"] * gramas / 100
         macros_calculados.append({
             "macronutriente": macro["macronutriente"],
-            "valor": round(valor_ajustado, 6),
+            "valor": round(valor_ajustado, 6),  # não arredonda excessivamente
             "unidade": macro["unidade"]
         })
 
@@ -50,9 +69,11 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))
     host = '0.0.0.0'
 
+    # Obtém o domínio público do Railway (se existir)
+    railway_url = os.environ.get('RAILWAY_STATIC_URL') or os.environ.get('RAILWAY_PUBLIC_DOMAIN') or 'http://localhost:8080'
+
     print("\n🚀 API de ingredientes iniciando...\n")
-    print(f"✅ Todos os ingredientes: https://seu-projeto-production.up.railway.app/ingredientes")
-    print(
-        f"✅ Ingrediente específico (exemplo com 150g): https://seu-projeto-production.up.railway.app/ingrediente/1?gramas=150\n")
+    print(f"✅ Todos os ingredientes: {railway_url}/ingredientes")
+    print(f"✅ Ingrediente específico (exemplo com 150g): {railway_url}/ingrediente/1?gramas=150\n")
 
     app.run(debug=False, host=host, port=port)

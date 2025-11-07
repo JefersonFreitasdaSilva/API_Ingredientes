@@ -44,8 +44,10 @@ def obter_ingrediente(id_ingrediente):
 
     return jsonify(resultado)
 
+
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
+    # Railway define a porta automaticamente
+    port = int(os.environ.get('PORT', 8080))
     host = '0.0.0.0'
 
     print("\n🚀 API de ingredientes iniciando...\n")
